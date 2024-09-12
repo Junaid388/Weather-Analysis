@@ -10,26 +10,26 @@ User-Friendly Interface: A React frontend provides a responsive and clean interf
 Deployment: The application is deployed on Render.com.
 ## Tech Stack
 ## Backend (Django):
-Python 3.x
-Django
-Django Rest Framework (DRF)
-PostgreSQL (or SQLite for local development)
-WeatherAPI (or any public weather API)
+- Python 3.x
+- Django
+- Django Rest Framework (DRF)
+- PostgreSQL (or SQLite for local development)
+- WeatherAPI (or any public weather API)
 ## Frontend (React):
-React
-Axios (for API calls)
-Tailwind CSS (for styling)
+- React
+- Axios (for API calls)
+- Tailwind CSS (for styling)
 ## Requirements
 ## Backend:
-Python 3.x
-Django 3.x or higher
-Django Rest Framework (DRF)
-PostgreSQL (optional)
+- Python 3.x
+- Django 3.x or higher
+- Django Rest Framework (DRF)
+- PostgreSQL (optional)
 ## Frontend:
-Node.js 12+ (for React)
-Axios
-React 16+ or higher
-Tailwind CSS
+- Node.js 12+ (for React)
+- Axios
+- React 16+ or higher
+- Tailwind CSS
 ## Environment Variables:
-WEATHER_API_KEY: Your API key for the WeatherAPI service.
-DATABASE_URL: Database connection string (if using PostgreSQL).
+- WEATHER_API_KEY: Your API key for the WeatherAPI service.
+- DATABASE_URL: Database connection string (if using PostgreSQL).
