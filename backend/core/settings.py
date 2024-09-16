@@ -158,12 +158,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-with open('.env') as env_file:
-    for line in env_file:
-        var_name, var_value = line.strip().split('=')
-        os.environ[var_name] = var_value
+# with open('.env') as env_file:
+#     for line in env_file:
+#         var_name, var_value = line.strip().split('=')
+#         os.environ[var_name] = var_value
 
-import logging
+# import logging
 
 # logging.basicConfig(
 #     level=logging.DEBUG,
