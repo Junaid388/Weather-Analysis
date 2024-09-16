@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
+from dotenv import dotenv_values
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,7 +29,7 @@ SECRET_KEY = 'django-insecure-37(wn$$5u#e0)--zd$!-@@4_3lny1ojxe$0f5oy!g_0h6!@@t#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['weather-analysis-esuu.onrender.com','127.0.0.1', 'localhost']
 
 APPEND_SLASH=False
 
@@ -93,24 +96,21 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+config = dotenv_values(".env")
+DATABASES = {
+    'default': dj_database_url.parse(config["DATABASE_URL"])
+}
 
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'weather_db',  # Your PostgreSQL database name
+#         'USER': 'weather_user',  # Your PostgreSQL username
+#         'PASSWORD': 'Pass@123',  # Your PostgreSQL password
+#         'HOST': 'localhost',  # If running locally, otherwise provide your database server address
+#         'PORT': '5432',  # Default PostgreSQL port
 #     }
 # }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'weather_db',  # Your PostgreSQL database name
-        'USER': 'weather_user',  # Your PostgreSQL username
-        'PASSWORD': 'Pass@123',  # Your PostgreSQL password
-        'HOST': 'localhost',  # If running locally, otherwise provide your database server address
-        'PORT': '5432',  # Default PostgreSQL port
-    }
-}
 
 
 # Password validation
@@ -148,6 +148,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = 'media/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
