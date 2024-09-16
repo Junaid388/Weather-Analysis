@@ -16,8 +16,8 @@ from .models import CurrentWeather, ForecastDay, HourlyForecast, Location
 # Create your views here.
 @csrf_exempt
 def index(request):
-    config = dotenv_values(".env")
-    api_key = config['weather_api']
+    # config = dotenv_values(".env")
+    api_key = os.environ.get('weather_api')
     # current_weather_url = 'http://api.weatherapi.com/v1/current.json?key={}&q={}&aqi=no'
     forecast_url = 'http://api.weatherapi.com/v1/forecast.json?key={}&q={}&days={}&aqi=no&alerts=no'
     # print(JSONParser().parse(request))

@@ -14,7 +14,9 @@ import os
 from pathlib import Path
 
 import dj_database_url
-from dotenv import dotenv_values
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -96,9 +98,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-config = dotenv_values(".env")
+# config = dotenv_values(".env")
+# print(os.environ.get('DATABASE_URL'))
 DATABASES = {
-    'default': dj_database_url.parse(config["DATABASE_URL"])
+    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
 }
 
 # DATABASES = {
