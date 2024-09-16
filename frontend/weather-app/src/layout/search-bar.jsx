@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 const SearchBar = () => {
     // const BASE_URL = 'http://localhost:8000/';
-    BASE_URL = 'https://weather-analysis-esuu.onrender.com/';
+    const BASE_URL = 'https://weather-analysis-esuu.onrender.com/';
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false);     // State to control spinner visibility
     const [data, setData] = useState([]);
