@@ -3,10 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
 import { useState } from 'react';
+
+
+
+
 const SearchBar = () => {
+    // const BASE_URL = 'http://localhost:8000/';
+    BASE_URL = 'https://weather-analysis-esuu.onrender.com/';
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false);     // State to control spinner visibility
-    const [data, setData] = useState([]); 
+    const [data, setData] = useState([]);
     const [currentData, setCurrentData] = useState([]);              // State to store response data
     const csrfToken = getCookie('csrftoken');
 
@@ -36,7 +42,7 @@ const SearchBar = () => {
 
     const weatherApiCall = (city) => {
         return new Promise((resolve, reject) => {
-            const weatherUrl = 'http://localhost:8000/app/';
+            const weatherUrl = BASE_URL+'app/';
     
             axios.post(weatherUrl, { city1: city }, {
                 headers: {
@@ -76,7 +82,7 @@ const SearchBar = () => {
             {loading && <div className="spinner">Loading...</div>}
             
 
-            {!loading &&
+            {data.length > 0  &&
             <section className='items-center justify-center py-4'>
             <Card>
                         <CardHeader>

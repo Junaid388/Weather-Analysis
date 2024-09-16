@@ -70,7 +70,7 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_COOKIE_SECURE = False
 CSRF_USE_SESSIONS = False
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:5173",]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", 'https://weather-analysis-1-1l1j.onrender.com']
 
 
 
