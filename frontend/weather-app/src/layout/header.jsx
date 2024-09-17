@@ -2,7 +2,7 @@
 
 const Header = () => {
     return (
-        <header className="p-10 items-center justify-center bg-gray-800">
+        <header className="p-1 items-center justify-center bg-gray-800">
             <div>
                 <h1 className="flex flex-col items-center justify-center gradient-title text-3xl 
             font-extrabold sm:text-4xl lg:text-6xl tracking-tighter py-4">

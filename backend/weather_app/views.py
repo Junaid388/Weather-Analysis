@@ -6,6 +6,7 @@ import requests
 from django.http import JsonResponse
 from django.http.response import JsonResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from dotenv import dotenv_values
 from rest_framework.parsers import JSONParser
@@ -49,16 +50,21 @@ def fetch_weather_and_forecast(city, api_key, forecast_url,days=3):
     # response = requests.get(current_weather_url.format(api_key,city)).json()
     
     forecast_response = requests.get(forecast_url.format(api_key, city, days)).json()
-    print(forecast_response)
+    # print(forecast_response)
 
     # if forecast_response.status_code == 200:
     # weather_data = forecast_response.json()
     store_weather_data(forecast_response)
     weather_data = {
-    'city': city,
+    'city': forecast_response['location']['name'],
     'temperature': forecast_response['current']['temp_c'],
     'description': forecast_response['current']['condition']['text'],
     'icon': forecast_response['current']['condition']['icon'],
+    'feels_like':forecast_response['current']['feelslike_c'],
+    'humidity':forecast_response['current']['humidity'],
+    'wind_kph':forecast_response['current']['wind_kph'],
+    'uv':forecast_response['current']['uv'],
+
     }
 
     daily_forecasts = []
@@ -69,6 +75,7 @@ def fetch_weather_and_forecast(city, api_key, forecast_url,days=3):
             'max_temp': round(daily_data['day']['maxtemp_c']),
             'description': daily_data['day']['condition']['text'],
             'icon': daily_data['day']['condition']['icon'],
+            'date_epoch': daily_data['date_epoch']
         })
     return weather_data, daily_forecasts
     # else:
@@ -84,14 +91,14 @@ def store_weather_data(data):
         latitude=location_data['lat'],
         longitude=location_data['lon'],
         timezone=location_data['tz_id'],
-        localtime=datetime.fromtimestamp(location_data['localtime_epoch'])
+        localtime=timezone.make_aware(datetime.fromtimestamp(location_data['localtime_epoch']))  # Make aware
     )
 
     # 2. Store current weather data
     current_data = data['current']
     CurrentWeather.objects.create(
         location=location,
-        last_updated=datetime.fromtimestamp(current_data['last_updated_epoch']),
+        last_updated=timezone.make_aware(datetime.fromtimestamp(current_data['last_updated_epoch'])),
         temp_c=current_data['temp_c'],
         temp_f=current_data['temp_f'],
         is_day=current_data['is_day'],
@@ -120,7 +127,7 @@ def store_weather_data(data):
     for forecast_day in forecast_data:
         forecast = ForecastDay.objects.create(
             location=location,
-            date=datetime.fromtimestamp(forecast_day['date_epoch']),
+            date=timezone.make_aware(datetime.strptime(forecast_day['date'], '%Y-%m-%d')),
             maxtemp_c=forecast_day['day']['maxtemp_c'],
             maxtemp_f=forecast_day['day']['maxtemp_f'],
             mintemp_c=forecast_day['day']['mintemp_c'],
@@ -142,7 +149,7 @@ def store_weather_data(data):
         for hour in forecast_day['hour']:
             HourlyForecast.objects.create(
                 forecast_day=forecast,
-                time=datetime.fromtimestamp(hour['time_epoch']),
+                time=timezone.make_aware(datetime.fromtimestamp(hour['time_epoch'])),
                 temp_c=hour['temp_c'],
                 temp_f=hour['temp_f'],
                 is_day=hour['is_day'],
