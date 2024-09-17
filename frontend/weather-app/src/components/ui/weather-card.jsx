@@ -9,7 +9,7 @@ const WeatherCard = (props) => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold">{props.data.city}</h2>
             {/* <Cloud className="w-10 h-10" /> */}
-            <img src={props.data.icon} alt={ props.data.description } className="w-10 h-10"></img>
+            <img src={props.data.icon} alt={props.data.description} className="w-10 h-10"></img>
           </div>
           <div className="mb-4">
             <p className="text-6xl font-bold">{props.data.temperature}°C</p>
@@ -31,7 +31,7 @@ const WeatherCard = (props) => {
               <span>Wind {props.data.wind_kph} km/h</span>
             </div>
             <div className="flex items-center">
-            <ShieldAlertIcon className="w-4 h-4 mr-1"/>
+              <ShieldAlertIcon className="w-4 h-4 mr-1" />
               <span>UV {props.data.uv}</span>
             </div>
           </div>
@@ -40,4 +40,4 @@ const WeatherCard = (props) => {
     </div>
   )
 };
-export default WeatherCard ;
+export default WeatherCard;
