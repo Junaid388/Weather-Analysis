@@ -1,6 +1,6 @@
 # Weather Analysis System
+[weather analysis system](https://weather-analysis-1-1l1j.onrender.com/)
 working link as of 19-09-2024
-[text](https://weather-analysis-1-1l1j.onrender.com/)
 ## Overview
 This project is a Weather Analysis System built using Django as the backend and React as the frontend. It fetches real-time weather data from a public API (such as WeatherAPI), processes it, and provides weather insights. The system raises alerts for extreme weather conditions and displays this information on the web interface. It also allows users to view trends such as average temperature and humidity for a specific city over time.
 
