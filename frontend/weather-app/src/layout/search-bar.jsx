@@ -110,7 +110,7 @@ const SearchBar = () => {
             <div className="flex items-center justify-center w-full max-w-18xl overflow-x-auto">
                 <div className="flex space-x-4 p-4">
                     {data.length > 0 && !loading && data.map((day, index) => (
-                        <div key={index} className="flex-shrink-0 w-60 bg-gray-800 rounded-lg shadow-md p-4 text-center">
+                        <div key={index} className="flex-shrink-0 w-40 bg-gray-800 rounded-lg shadow-md p-4 text-center">
                             <p className="font-semibold">{getDay(day.date_epoch)}</p>
                             <p className="text-sm mb-2">{day.date}</p>
                             <img src={day.icon} alt={day.description} className="w-12 h-12 mx-auto my-2"></img>
