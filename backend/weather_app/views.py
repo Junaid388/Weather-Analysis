@@ -1,8 +1,10 @@
 import datetime
 import os
-from datetime import datetime
+import threading
+from datetime import datetime, timedelta
 
 import requests
+from django.db.models import Avg, Max, Min
 from django.http import JsonResponse
 from django.http.response import JsonResponse
 from django.shortcuts import render
@@ -14,47 +16,85 @@ from rest_framework.parsers import JSONParser
 from .models import CurrentWeather, ForecastDay, HourlyForecast, Location
 
 
-# Create your views here.
+# View to get average temperature for the 24 hours
+def next_24_hour_forecast(request, city_name):
+    now = timezone.now()
+
+    # Create a list of times for the next 24 hours in 30-minute intervals
+    times = []
+    current_time = now.replace(minute=0, second=0, microsecond=0)
+    for _ in range(48):  # 48 intervals (24 hours * 2 per hour)
+        times.append(current_time.strftime("%H:%M"))
+        current_time += timedelta(minutes=30)
+
+    # Query the hourly forecast for the next 24 hours (including temperatures, humidity, and time)
+    hourly_data = HourlyForecast.objects.filter(
+        forecast_day__location__name=city_name,
+        time__gte=now,
+        time__lt=now + timedelta(hours=24)
+    ).values('time', 'temp_c', 'humidity').order_by('time')
+
+    # Create dictionaries of the hourly data keyed by the time in "HH:MM" format
+    temperature_data = {data['time'].strftime("%H:%M"): data['temp_c'] for data in hourly_data}
+    humidity_data = {data['time'].strftime("%H:%M"): data['humidity'] for data in hourly_data}
+
+    
+
+    # Calculate trends: average temperature and humidity over the last 24 hours
+    avg_temp = HourlyForecast.objects.filter(
+        forecast_day__location__name=city_name,
+        time__gte=now - timedelta(hours=24),
+        time__lt=now
+    ).aggregate(Avg('temp_c'))['temp_c__avg']
+
+    avg_humidity = HourlyForecast.objects.filter(
+        forecast_day__location__name=city_name,
+        time__gte=now - timedelta(hours=24),
+        time__lt=now
+    ).aggregate(Avg('humidity'))['humidity__avg']
+
+    # Create lists of temperatures and humidity where missing times are filled with None
+    temperatures = [temperature_data.get(time, avg_temp) for time in times]
+    humidity = [humidity_data.get(time, avg_humidity) for time in times]
+
+    # Prepare result
+    result = {
+        'times': times,
+        'temperatures': temperatures,
+        'humidity': humidity,
+        'average_temperature_last_24_hours': avg_temp,
+        'average_humidity_last_24_hours': avg_humidity
+    }
+
+    return JsonResponse(result)
+
+
+
 @csrf_exempt
 def index(request):
-    # config = dotenv_values(".env")
     api_key = os.environ.get('weather_api')
-    # current_weather_url = 'http://api.weatherapi.com/v1/current.json?key={}&q={}&aqi=no'
-    forecast_url = 'http://api.weatherapi.com/v1/forecast.json?key={}&q={}&days={}&aqi=no&alerts=no'
+    forecast_url = 'http://api.weatherapi.com/v1/forecast.json?key={}&q={}&days={}&aqi=no&alerts=yes'
     # print(JSONParser().parse(request))
     if request.method == 'POST':
-        city = JSONParser().parse(request)['city1']
-
-        weather_data1, daily_forecasts1 = fetch_weather_and_forecast(city, api_key, forecast_url)
-
-        # if city2:
-        #     weather_data2, daily_forecasts2 = fetch_weather_and_forecast(city2, api_key, current_weather_url,
-        #                                                                  forecast_url)
-        # else:
-        #     weather_data2, daily_forecasts2 = None, None
-
-        context = {
-            'weather_data1': weather_data1,
-            'daily_forecasts1': daily_forecasts1,
-            # 'weather_data2': weather_data2,
-            # 'daily_forecasts2': daily_forecasts2,
-        }
-
+        city = JSONParser().parse(request)['city']
+        context = fetch_weather_and_forecast(city, api_key, forecast_url)
         return JsonResponse(context, safe=False)
     else:
         return JsonResponse(null, safe=False)
     
 
 
-def fetch_weather_and_forecast(city, api_key, forecast_url,days=3):
-    # response = requests.get(current_weather_url.format(api_key,city)).json()
+def fetch_weather_and_forecast(city, api_key, forecast_url,days=7):
     
-    forecast_response = requests.get(forecast_url.format(api_key, city, days)).json()
-    # print(forecast_response)
+    try:
+        forecast_response = requests.get(forecast_url.format(api_key, city, days)).json()
+    except requests.exceptions.RequestException as e:
+        return {'error': str(e)}
 
-    # if forecast_response.status_code == 200:
-    # weather_data = forecast_response.json()
-    store_weather_data(forecast_response)
+
+    if 'error' in forecast_response:
+        return {'error': forecast_response['error']}
+    
     weather_data = {
     'city': forecast_response['location']['name'],
     'temperature': forecast_response['current']['temp_c'],
@@ -77,9 +117,16 @@ def fetch_weather_and_forecast(city, api_key, forecast_url,days=3):
             'icon': daily_data['day']['condition']['icon'],
             'date_epoch': daily_data['date_epoch']
         })
-    return weather_data, daily_forecasts
-    # else:
-    #     return weather_data, daily_forecasts # ToDo empty response
+
+        context = {
+            'weather_data': weather_data,
+            'daily_forecasts': daily_forecasts,
+            'alerts': forecast_response['alerts']
+        }
+    # store_weather_data(forecast_response)
+    # Start a background thread to store the data
+    threading.Thread(target=store_weather_data, args=(forecast_response,)).start()
+    return context
 
 def store_weather_data(data):
     # 1. Store location data
